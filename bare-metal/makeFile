@@ -1,0 +1,15 @@
+CC = arm-none-eabi-gcc
+MACH = cortex-m4
+CFLAGS = -c -mcpu=$(MACH) -mthumb -std=gnu11 -O0
+LFLAGS = -nostdlib -T stm32f446re_linker.ld -Wl,-Map=final.map
+all:main.o stm32f446re_startup.o final.elf
+main.o:main.c
+	$(CC) $(CFLAGS) -o $@ $^ 
+stm32f446re_startup.o : stm32f446re_startup.c
+	$(CC) $(CFLAGS) -o $@ $^
+final.elf:main.o stm32f446re_startup.o
+	$(CC) $(LFLAGS) -o $@ $^
+clean:
+	rm -rf *.o *.elf
+load:
+	openocd -f board/stm32f4discovery.cfg
